@@ -260,7 +260,7 @@ For questions or support regarding The Develop Mastermind® Roadmap, please cont
 - Fully responsive design
 
 ---
-
+➡️ See [CONTRIBUTING.md](./CONTRIBUTING.md) for how development updates and Loom demos should be submitted.
 
 
 
