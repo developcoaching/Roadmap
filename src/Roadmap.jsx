@@ -6,7 +6,7 @@ import './Roadmap.css'; // Import the CSS file
 const taskMap = {
   Plan: {
     '£500K': [
-      { task: '1 Year Forecast' },
+      { task: '1 Year Forecast'},
       { task: 'Asana Task Management' },
       { task: 'Xero/Quickbooks Setup - Templates & Projects' },
     ],
