@@ -6,21 +6,58 @@ A beautiful, interactive roadmap application designed to help businesses track t
 
 ---
 
+## 🌐 Live Deployment
+
+**Live URL**: [https://interactive-roadmap-umber.vercel.app/](https://interactive-roadmap-umber.vercel.app/)
+
+### How to Access
+
+This roadmap is integrated with the **Develop Coaching** GoHighLevel (GHL) workflow system. To access the interactive roadmap:
+
+1. **Navigate to the GHL Workflow**:
+   - Go to the **Sites** tab in your GHL dashboard
+   - Select the **Websites** tab
+   - Locate the **Roadmap Interactive** folder
+   - Open the file named **"New Roadmap"**
+
+2. **Automatic Login**:
+   - If you are an **existing customer**, the system will automatically log you in
+   - Your progress is saved and synced with your account
+   - No manual authentication required!
+
+3. **Access Method**:
+   - The roadmap can **only be opened through the GHL workflow** called **"Flow build"**
+   - This ensures secure, authenticated access for Develop Coaching members
+   - Direct URL access requires authentication via the workflow
+
+---
+
 ## 📋 Features
 
-- **Interactive Checklist**: Track your progress with checkboxes that persist in local storage
+- **Secure Authentication**: 
+  - Firebase-based authentication system
+  - Automatic login for existing Develop Coaching customers
+  - Secure user session management via GHL integration
+- **Interactive Checklist**: Track your progress with checkboxes that sync to your account
 - **Progress Tracking**: 
   - Overall progress bar in the header
-  - Individual progress bars for each column
+  - Individual progress bars for each column (Plan, Attract, Convert, Deliver, Scale)
   - Real-time percentage calculations
-- **Revenue-Based Organization**: Tasks organized by revenue milestones (£500K, £1M, £2M, £3M, £5M)
-- **Video Integration**: Clickable task titles that link to tutorial videos
+- **Revenue-Based Organization**: 
+  - Tasks organized by revenue milestones (£500K, £1M, £2M, £3M, £5M)
+  - Visual dividers separating each revenue tier
+  - Aligned layout for easy comparison across columns
+- **Course Integration**: 
+  - Clickable task titles that link to tutorial videos and courses
+  - Direct access to Develop Coaching membership content
+  - Seamless integration with the learning platform
 - **Responsive Design**: 
   - Desktop-first approach with full feature display
   - Tablet-optimized layout
   - Mobile-friendly vertical stack design
-- **Persistent State**: Your progress is automatically saved to browser local storage
-- **Beautiful UI**: Modern design with brand colors and smooth animations
+  - Revenue scale sidebar (hidden on mobile)
+- **Cloud Sync**: Your progress is automatically saved to Firebase and synced across devices
+- **Beautiful UI**: Modern design with brand colors (#fdce36 gold, #414042 dark grey) and smooth animations
 
 ---
 
@@ -133,19 +170,34 @@ Roadmap (DEVELOP COACHING)/
 │   ├── App.css               # App styles
 │   ├── main.jsx              # Application entry point
 │   ├── index.css             # Global styles
-│   ├── Roadmap.jsx           # Main Roadmap component ⭐
-│   ├── Roadmap.css           # Roadmap styles ⭐
-│   ├── AuthApp.jsx           # Authentication component
+│   ├── Roadmap.jsx           # Standalone Roadmap component (demo) ⭐
+│   ├── AuthRoadmap.jsx       # Authenticated Roadmap component (production) ⭐⭐
+│   ├── Roadmap.css           # Roadmap styles (shared) ⭐
+│   ├── AuthApp.jsx           # Authentication wrapper component
 │   └── AuthApp.css           # Authentication styles
+├── dist/                     # Production build output
 ├── index.html                # HTML entry point
 ├── package.json              # Dependencies and scripts
 ├── vite.config.js            # Vite configuration
 └── README.md                 # This file
 ```
 
-**⭐ Key Files for Customization**:
-- `src/Roadmap.jsx` - Contains all task data and logic
-- `src/Roadmap.css` - Contains all visual styling
+**⭐⭐ Production Component**:
+- `src/AuthRoadmap.jsx` - The main authenticated roadmap used in production
+  - Integrates with Firebase for authentication
+  - Syncs progress to cloud database
+  - Receives user ID from GHL workflow
+  - Contains all task data organized by revenue slabs
+  - Links to Develop Coaching course content
+
+**⭐ Development/Demo Component**:
+- `src/Roadmap.jsx` - Standalone version for local development
+  - Uses localStorage instead of Firebase
+  - No authentication required
+  - Same UI and features as AuthRoadmap
+  
+**Shared Resources**:
+- `src/Roadmap.css` - All visual styling for both components
 
 ---
 
@@ -194,11 +246,25 @@ Use Find & Replace to update colors throughout the file.
 
 ## 🛠 Technologies Used
 
-- **React 19.0** - UI framework
-- **Vite 6.3** - Build tool and dev server
-- **CSS3** - Styling with custom properties
-- **LocalStorage API** - Progress persistence
-- **Firebase** - Authentication (via AuthApp component)
+### Frontend
+- **React 19.0** - UI framework with hooks (useState, useEffect, useMemo, useCallback)
+- **Vite 6.3** - Lightning-fast build tool and dev server
+- **CSS3** - Custom styling with responsive design and CSS Grid/Flexbox
+
+### Backend & Services
+- **Firebase** - Cloud services platform
+  - Firestore - Real-time NoSQL database for progress storage
+  - Authentication - User session management
+- **Vercel** - Serverless deployment platform
+- **GoHighLevel (GHL)** - Workflow integration and user management
+
+### Data Storage
+- **LocalStorage API** - Client-side progress persistence (demo mode)
+- **Firebase Firestore** - Cloud-based progress sync (production mode)
+
+### Integration
+- **postMessage API** - Secure iframe communication with GHL workflow
+- **Develop Coaching Membership Platform** - Course content integration
 
 ---
 
@@ -212,9 +278,19 @@ Use Find & Replace to update colors throughout the file.
 
 ## 💾 Data Persistence
 
-The application automatically saves your progress using the browser's localStorage:
+### Production Mode (AuthRoadmap.jsx)
+The application saves your progress to **Firebase Firestore**:
+- **Database**: Cloud Firestore
+- **Storage Path**: `artifacts/{appId}/users/{userId}/roadmap_progress/checks`
+- **Data Format**: JSON object with task names as keys and boolean values
+- **Auto-Sync**: Progress automatically syncs across all your devices
+- **User-Specific**: Each user's progress is stored separately and securely
+
+### Demo Mode (Roadmap.jsx)
+Uses **browser's localStorage** for offline persistence:
 - **Storage Key**: `roadmapChecks`
 - **Data Format**: JSON object with task names as keys and boolean values
+- **Device-Specific**: Progress saved locally on current browser only
 - **Clearing Progress**: Clear browser data or localStorage to reset
 
 ---
@@ -252,12 +328,22 @@ For questions or support regarding The Develop Mastermind® Roadmap, please cont
 
 ## 🔄 Version History
 
+### Version 2.0.0 (Current)
+- **Authentication System**: Full Firebase integration with automatic login
+- **GHL Workflow Integration**: Seamless integration with Develop Coaching workflow
+- **Cloud Sync**: Progress saved to Firestore and synced across devices
+- **Course Links**: Direct integration with Develop Coaching membership platform
+- **Revenue Slab UI**: Visual dividers separating revenue tiers (£500K, £1M, £2M, £3M, £5M)
+- **AuthRoadmap Component**: Production-ready authenticated roadmap
+- **Vercel Deployment**: Live at https://interactive-roadmap-umber.vercel.app/
+- **Enhanced Security**: iframe-based secure access through GHL
+
 ### Version 1.0.0
 - Initial release
-- 5 columns with revenue-based task organization
-- Progress tracking and persistence
+- 5 columns with revenue-based task organization (Plan, Attract, Convert, Deliver, Scale)
+- Progress tracking and persistence with localStorage
 - Video link integration
-- Fully responsive design
+- Fully responsive design (Desktop, Tablet, Mobile)
 
 ---
 
