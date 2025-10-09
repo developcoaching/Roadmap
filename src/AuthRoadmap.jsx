@@ -203,13 +203,13 @@ const Roadmap = ({ userId, handleSignOut }) => {
             }
         };
         loadProgress();
-    }, [userId]); // Dependency is now just userId 
+    }, [userId]); 
 
     // --- Data Saving (Firestore) ---
     const saveProgress = useCallback(async (newCheckedItems) => {
         try {
             // FIX: Save the checkedItems object directly to the document root
-            await setDoc(roadmapProgressRef, newCheckedItems);
+            await setDoc(roadmapProgressRef, newCheckedItems); 
         } catch (e) {
             console.error("Error saving progress:", e);
         }
