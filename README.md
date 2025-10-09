@@ -2,7 +2,7 @@
 
 A beautiful, interactive roadmap application designed to help businesses track their growth journey from £500K to £5M in revenue. This responsive web application provides a structured approach to business development across five key areas: Plan, Attract, Convert, Deliver, and Scale.
 
-![Roadmap Preview](./roadmap-preview.png)
+![Roadmap Preview](./roadmap-preview.png)\n
 Deployed site-https://roadmap-6gmk.vercel.app/
 ---
 
