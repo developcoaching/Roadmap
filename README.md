@@ -8,7 +8,17 @@ A beautiful, interactive roadmap application designed to help businesses track t
 
 ## 🌐 Live Deployment
 
-**Live URL**: [https://interactive-roadmap-umber.vercel.app/](https://interactive-roadmap-umber.vercel.app/)
+**Live Website**: [https://pages.develop-coaching.co.uk/new-roadmap](https://pages.develop-coaching.co.uk/new-roadmap)
+
+**React App URL**: [https://interactive-roadmap-umber.vercel.app/](https://interactive-roadmap-umber.vercel.app/)
+
+### Deployment Details
+
+The application is deployed on **Firebase** and can be accessed through your Firebase account:
+- **Account Email**: hello@developcoaching.co.uk
+- **Managed by**: [developcoaching.co.uk](https://developcoaching.co.uk)
+- **Platform**: Firebase Hosting & Firestore Database
+- **User Progress Storage**: All user progress is automatically saved and synced via Firebase Firestore
 
 ### How to Access
 
@@ -22,13 +32,96 @@ This roadmap is integrated with the **Develop Coaching** GoHighLevel (GHL) workf
 
 2. **Automatic Login**:
    - If you are an **existing customer**, the system will automatically log you in
-   - Your progress is saved and synced with your account
+   - Your progress is **automatically saved and synced** to Firebase Firestore
+   - Each user's progress is stored separately and persists across sessions and devices
    - No manual authentication required!
 
 3. **Access Method**:
    - The roadmap can **only be opened through the GHL workflow** called **"Flow build"**
    - This ensures secure, authenticated access for Develop Coaching members
    - Direct URL access requires authentication via the workflow
+
+### Iframe Integration Code
+
+The React app is embedded in the GHL page using the following iframe code:
+
+```html
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+  }
+  .iframe-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #fff;
+    z-index: 999;
+  }
+  .iframe-container {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+</style>
+
+<div class="iframe-wrapper">
+  <iframe
+    id="myReactIframe"
+    class="iframe-container"
+    src="https://interactive-roadmap-umber.vercel.app/"
+    frameborder="0"
+    allowfullscreen>
+  </iframe>
+</div>
+<script>
+  const IFRAME_ID = 'myReactIframe';
+  const REACT_APP_ORIGIN = 'https://interactive-roadmap-umber.vercel.app';
+
+  // Replace this with actual logic to get the logged-in user ID from FlowBuild or GHL
+  const LOGGED_IN_USER_ID = '{{contact.id}}'; // GHL merge field example
+
+  const iframe = document.getElementById(IFRAME_ID);
+
+  if (iframe && LOGGED_IN_USER_ID) {
+    const sendUserIdToIframe = () => {
+      iframe.contentWindow.postMessage(
+        {
+          type: 'USER_LOGIN',
+          userId: LOGGED_IN_USER_ID
+        },
+        REACT_APP_ORIGIN
+      );
+      console.log("Sent USER_LOGIN message to React iframe:", LOGGED_IN_USER_ID);
+    };
+
+    if (iframe.contentWindow) {
+      sendUserIdToIframe();
+    }
+
+    iframe.onload = sendUserIdToIframe;
+
+    window.addEventListener('message', (event) => {
+      if (event.origin !== REACT_APP_ORIGIN) return;
+
+      if (event.data.type === 'IFRAME_LOGOUT') {
+        console.log("Received LOGOUT signal from iframe. Reloading parent.");
+        window.location.reload();
+      }
+    });
+  } else {
+    console.error("IFRAME EMBED ERROR: Could not find element with ID:", IFRAME_ID, "or User ID is missing.");
+  }
+</script>
+```
 
 ---
 
