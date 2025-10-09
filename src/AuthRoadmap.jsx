@@ -6,19 +6,20 @@ import './Roadmap.css'
 
 // --- MOCK CONFIGURATION ---
 const MOCK_FIREBASE_CONFIG = {
-    apiKey: "AIzaSyCz1NAJzZxtG65sRUN2NfgIOH3rWL-yZKQ", 
+    apiKey: "AIzaSyCz1NAJzZxtG65sRUN2NfgIOH3rWL-yZKQ",
     authDomain: "roadmap-webpage-6b7e4.firebaseapp.com",
     projectId: "roadmap-webpage-6b7e4",
-    storageBucket: "roadmap-webpage-6b7e4.appspot.com",
-    messagingSenderId: "1234567890",
-    appId: "1:1234567890:web:mockwebid"
+    storageBucket: "roadmap-webpage-6b7e4.firebasestorage.app",
+    messagingSenderId: "637802412221",
+    appId: "1:637802412221:web:2e2f992ebbbb66cd735fd4",
+    measurementId: "G-R0YS2JR3B6"
 };
 
 // --- GLOBAL VARIABLES (Provided by Environment or Mock) ---
 const FIREBASE_CONFIG = typeof __firebase_config !== 'undefined' 
     ? JSON.parse(__firebase_config) 
     : MOCK_FIREBASE_CONFIG;
-const appId = 'default-app-id'; 
+const appId = 'roadmap-webpage-6b7e4'; 
 
 // Initialize Firebase App and Services
 const app = initializeApp(FIREBASE_CONFIG);
@@ -189,7 +190,8 @@ const Roadmap = ({ userId, handleSignOut }) => {
             try {
                 const docSnap = await getDoc(roadmapProgressRef);
                 if (docSnap.exists()) {
-                    setCheckedItems(docSnap.data().items || {});
+                    // FIX: Load the document data directly, which is the checkedItems object
+                    setCheckedItems(docSnap.data() || {});
                 } else {
                     console.log("No existing roadmap progress found, starting fresh.");
                     setCheckedItems({});
@@ -206,10 +208,8 @@ const Roadmap = ({ userId, handleSignOut }) => {
     // --- Data Saving (Firestore) ---
     const saveProgress = useCallback(async (newCheckedItems) => {
         try {
-            await setDoc(roadmapProgressRef, { 
-                items: newCheckedItems, 
-                updatedAt: new Date().toISOString() 
-            });
+            // FIX: Save the checkedItems object directly to the document root
+            await setDoc(roadmapProgressRef, newCheckedItems);
         } catch (e) {
             console.error("Error saving progress:", e);
         }
@@ -290,13 +290,13 @@ const Roadmap = ({ userId, handleSignOut }) => {
 
             <div className="roadmap-content">
                 {/* Sign Out Button - Now just reloads the parent page, clearing session */}
-                <button 
+                {/*<button 
                     onClick={handleSignOut} 
                     className="sign-out-button"
                     style={{ position: 'absolute', top: '30px', right: '30px', zIndex: 10 }}
                 >
                     Sign Out
-                </button>
+                </button>*/}
 
                 {/* Roadmap Columns with Revenue Slabs */}
                 <div className="roadmap-columns">
