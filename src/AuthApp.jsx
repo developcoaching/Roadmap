@@ -35,85 +35,158 @@ const auth = getAuth(app);
 const db = getFirestore(app); 
 
 // ----------------------------------------------------------------------
-// PRE-PROCESSED DATA (Roadmap Content) - UNCHANGED
+// PRE-PROCESSED DATA (Roadmap Content) - Organized by Revenue Tiers
 // ----------------------------------------------------------------------
+const BASE_URL = 'https://developcoaching.memberships.msgsndr.com/products/b472d77a-977d-493d-9a8a-005794ad92c7';
+
 const ROADMAP_CONTENT = {
-    Plan: [
-        { text: '1 Year Forecast', link: 'https://developcoaching.memberships.msgsndr.com/1-year-forecast-video' },
-        { text: 'Asana Task Management', link: 'https://developcoaching.memberships.msgsndr.com/asana-task-management-video' },
-        { text: 'Xero/Quickbooks Setup - Templates & Projects', link: 'https://developcoaching.memberships.msgsndr.com/xero-quickbooks-setup-video' },
-        { text: 'Software Tracking', link: 'https://developcoaching.memberships.msgsndr.com/software-tracking-video' },
-        { text: '5 Year BHAG (Big Hairy Audacious Goal)', link: 'https://developcoaching.memberships.msgsndr.com/bhag-video' },
-        { text: 'KPIs', link: 'https://developcoaching.memberships.msgsndr.com/kpis-video' },
-        { text: 'Individual Job Profitability', link: 'https://developcoaching.memberships.msgsndr.com/job-profitability-video' },
-        { text: 'Monthly P&Ls', link: 'https://developcoaching.memberships.msgsndr.com/monthly-p&ls-video' },
-        { text: 'Lead Source Reports', link: 'https://developcoaching.memberships.msgsndr.com/lead-source-reports-video' },
-        { text: 'Monthly Income Forecast', link: 'https://developcoaching.memberships.msgsndr.com/monthly-income-forecast-video' },
-        { text: 'Cashflow Forecast', link: 'https://developcoaching.memberships.msgsndr.com/cashflow-forecast-video' },
-        { text: 'Pipeline', link: 'https://developcoaching.memberships.msgsndr.com/pipeline-video' }
-    ],
-    Attract: [
-        { text: 'USP (Unique Selling Proposition)', link: 'https://developcoaching.memberships.msgsndr.com/usp-video' },
-        { text: 'Brand Guidelines', link: 'https://developcoaching.memberships.msgsndr.com/brand-guidelines-video' },
-        { text: 'Staff Uniform', link: 'https://developcoaching.memberships.msgsndr.com/staff-uniform-video' },
-        { text: 'Vans Signwritten', link: 'https://developcoaching.memberships.msgsndr.com/vans-signwritten-video' },
-        { text: 'Signboards / Banners', link: 'https://developcoaching.memberships.msgsndr.com/signboards-banners-video' },
-        { text: 'Website on Brand', link: 'https://developcoaching.memberships.msgsndr.com/website-on-brand-video' },
-        { text: 'Social Media Profiles Active', link: 'https://developcoaching.memberships.msgsndr.com/social-media-active-video' },
-        { text: 'Reviews online', link: 'https://developcoaching.memberships.msgsndr.com/reviews-online-video' },
-        { text: 'Automated Social Posts', link: 'https://developcoaching.memberships.msgsndr.com/automated-social-posts-video' },
-        { text: 'Outbound Marketing', link: 'https://developcoaching.memberships.msgsndr.com/outbound-marketing-video' },
-        { text: 'LinkedIn Connection & Campaigns', link: 'https://developcoaching.memberships.msgsndr.com/linkedin-campaigns-video' },
-        { text: 'Page 1 Google key search terms', link: 'https://developcoaching.memberships.msgsndr.com/google-search-terms-video' },
-        { text: 'Blogs/Vlogs', link: 'https://developcoaching.memberships.msgsndr.com/blogs-vlogs-video' },
-        { text: 'Paid Ads', link: 'https://developcoaching.memberships.msgsndr.com/paid-ads-video' }
-    ],
-    Convert: [
-        { text: 'Call Handlers', link: 'https://developcoaching.memberships.msgsndr.com/call-handlers-video' },
-        { text: 'Telephone Sales Script', link: 'https://developcoaching.memberships.msgsndr.com/sales-script-video' },
-        { text: 'Accurate Pricing', link: 'https://developcoaching.memberships.msgsndr.com/accurate-pricing-video' },
-        { text: 'Quality Estimate Presentation', link: 'https://developcoaching.memberships.msgsndr.com/estimate-presentation-video' },
-        { text: 'Tracked Follow Up Process', link: 'https://developcoaching.memberships.msgsndr.com/follow-up-process-video' },
-        { text: 'Professional Photos', link: 'https://developcoaching.memberships.msgsndr.com/professional-photos-video' },
-        { text: 'Case Studies', link: 'https://developcoaching.memberships.msgsndr.com/case-studies-video' },
-        { text: 'Client Needs USP Generic Replies', link: 'https://developcoaching.memberships.msgsndr.com/generic-replies-video' },
-        { text: 'Know, Like, Trust', link: 'https://developcoaching.memberships.msgsndr.com/know-like-trust-video' },
-        { text: 'Awards', link: 'https://developcoaching.memberships.msgsndr.com/awards-video' },
-        { text: 'Quote to Convert Campaign', link: 'https://developcoaching.memberships.msgsndr.com/quote-convert-campaign-video' },
-        { text: 'Long Term Nurture', link: 'https://developcoaching.memberships.msgsndr.com/long-term-nurture-video' }
-    ],
-    Deliver: [
-        { text: '10min Daily Huddle', link: 'https://developcoaching.memberships.msgsndr.com/daily-huddle-video' },
-        { text: 'Gantt Charts', link: 'https://developcoaching.memberships.msgsndr.com/gantt-charts-video' },
-        { text: 'Client Meeting Minutes', link: 'https://developcoaching.memberships.msgsndr.com/client-meeting-minutes-video' },
-        { text: 'Pre-Site Set Up', link: 'https://developcoaching.memberships.msgsndr.com/pre-site-setup-video' },
-        { text: 'Site Set Up', link: 'https://developcoaching.memberships.msgsndr.com/site-setup-video' },
-        { text: 'Health & Safety', link: 'https://developcoaching.memberships.msgsndr.com/health-safety-video' },
-        { text: 'Track Workers', link: 'https://developcoaching.memberships.msgsndr.com/track-workers-video' },
-        { text: 'Variation Orders', link: 'https://developcoaching.memberships.msgsndr.com/variation-orders-video' },
-        { text: 'Contractor/Project Manager', link: 'https://developcoaching.memberships.msgsndr.com/contractor-pm-video' },
-        { text: 'Weekly PM Review', link: 'https://developcoaching.memberships.msgsndr.com/weekly-pm-review-video' },
-        { text: 'Project Sign Off Snagging/Quality Control', link: 'https://developcoaching.memberships.msgsndr.com/sign-off-qc-video' },
-        { text: 'Documentation Control', link: 'https://developcoaching.memberships.msgsndr.com/documentation-control-video' }
-    ],
-    Scale: [
-        { text: 'Organisation Chart', link: 'https://developcoaching.memberships.msgsndr.com/organisation-chart-video' },
-        { text: 'Supplier Terms Negotiated', link: 'https://developcoaching.memberships.msgsndr.com/supplier-terms-video' },
-        { text: 'Project Contracts', link: 'https://developcoaching.memberships.msgsndr.com/project-contracts-video' },
-        { text: 'VOIP Phone System', link: 'https://developcoaching.memberships.msgsndr.com/voip-system-video' },
-        { text: 'Holiday/Sickness Management', link: 'https://developcoaching.memberships.msgsndr.com/holiday-sickness-management-video' },
-        { text: 'Client Satisfaction Surveys', link: 'https://developcoaching.memberships.msgsndr.com/client-surveys-video' },
-        { text: 'Solids/Prepayment cards', link: 'https://developcoaching.memberships.msgsndr.com/solids-prepayment-cards-video' },
-        { text: 'Company Bible / Training Videos', link: 'https://developcoaching.memberships.msgsndr.com/company-bible-training-videos-video' },
-        { text: 'Partnerships', link: 'https://developcoaching.memberships.msgsndr.com/partnerships-video' },
-        { text: 'Job Roles Defined', link: 'https://developcoaching.memberships.msgsndr.com/job-roles-defined-video' },
-        { text: 'HR Contracts', link: 'https://developcoaching.memberships.msgsndr.com/hr-contracts-video' },
-        { text: 'Job Adverts', link: 'https://developcoaching.memberships.msgsndr.com/job-adverts-video' },
-        { text: 'Pension, Benefits & Rewards', link: 'https://developcoaching.memberships.msgsndr.com/pension-benefits-rewards-video' },
-        { text: 'Training Matrix', link: 'https://developcoaching.memberships.msgsndr.com/training-matrix-video' },
-        { text: 'Reports Dashboard', link: 'https://developcoaching.memberships.msgsndr.com/reports-dashboard-video' }
-    ]
+    Plan: {
+        '£500K': [
+            { text: '1 Year Forecast', link: `${BASE_URL}` },
+            { text: 'Asana Task Management', link: `${BASE_URL}` },
+            { text: 'Xero/Quickbooks Setup - Templates & Projects', link: `${BASE_URL}` },
+        ],
+        '£1M': [
+            { text: 'Software Tracking', link: `${BASE_URL}` },
+            { text: '5 Year BHAG (Big Hairy Audacious Goal)', link: `${BASE_URL}` },
+            { text: 'KPIs', link: `${BASE_URL}` },
+            { text: 'Individual Job Profitability', link: `${BASE_URL}` },
+        ],
+        '£2M': [
+            { text: 'Monthly P&Ls', link: `${BASE_URL}` },
+            { text: 'Lead Source Reports', link: `${BASE_URL}` },
+            { text: 'Monthly Income Forecast', link: `${BASE_URL}` },
+        ],
+        '£3M': [
+            { text: 'Cashflow Forecast', link: `${BASE_URL}` },
+            { text: 'Pipeline', link: `${BASE_URL}` },
+        ],
+        '£5M': []
+    },
+    Attract: {
+        '£500K': [
+            { text: 'USP (Unique Selling Proposition)', link: `${BASE_URL}` },
+            { text: 'Brand Guidelines', link: `${BASE_URL}` },
+            { text: 'Staff Uniform', link: `${BASE_URL}` },
+            { text: 'Vans Signwritten', link: `${BASE_URL}` },
+            { text: 'Signboards / Banners', link: `${BASE_URL}` },
+        ],
+        '£1M': [
+            { text: 'Website on Brand', link: `${BASE_URL}` },
+            { text: 'Social Media Profiles Active', link: `${BASE_URL}` },
+            { text: 'Reviews online', link: `${BASE_URL}` },
+        ],
+        '£2M': [
+            { text: 'Automated Social Posts', link: `${BASE_URL}` },
+            { text: 'Outbound Marketing', link: `${BASE_URL}` },
+            { text: 'LinkedIn Connection & Campaigns', link: `${BASE_URL}` },
+        ],
+        '£3M': [
+            { text: 'Page 1 Google key search terms', link: `${BASE_URL}` },
+            { text: 'Blogs/Vlogs', link: `${BASE_URL}` },
+            { text: 'Paid Ads', link: `${BASE_URL}` },
+        ],
+        '£5M': []
+    },
+    Convert: {
+        '£500K': [
+            { text: 'Call Handlers', link: `${BASE_URL}` },
+            { text: 'Telephone Sales Script', link: `${BASE_URL}` },
+            { text: 'Accurate Pricing', link: `${BASE_URL}` },
+            { text: 'Quality Estimate Presentation', link: `${BASE_URL}` },
+        ],
+        '£1M': [
+            { text: 'Tracked Follow Up Process', link: `${BASE_URL}` },
+            { text: 'Professional Photos', link: `${BASE_URL}` },
+            { text: 'Case Studies', link: `${BASE_URL}` },
+        ],
+        '£2M': [
+            { text: 'Client Needs USP Generic Replies', link: `${BASE_URL}` },
+            { text: 'Know, Like, Trust', link: `${BASE_URL}` },
+            { text: 'Awards', link: `${BASE_URL}` },
+        ],
+        '£3M': [
+            { text: 'Quote to Convert Campaign', link: `${BASE_URL}` },
+            { text: 'Long Term Nurture', link: `${BASE_URL}` },
+        ],
+        '£5M': []
+    },
+    Deliver: {
+        '£500K': [
+            { text: '10min Daily Huddle', link: `${BASE_URL}` },
+            { text: 'Gantt Charts', link: `${BASE_URL}` },
+            { text: 'Client Meeting Minutes', link: `${BASE_URL}` },
+        ],
+        '£1M': [
+            { text: 'Pre-Site Set Up', link: `${BASE_URL}` },
+            { text: 'Site Set Up', link: `${BASE_URL}` },
+            { text: 'Health & Safety', link: `${BASE_URL}` },
+            { text: 'Track Workers', link: `${BASE_URL}` },
+            { text: 'Variation Orders', link: `${BASE_URL}` },
+        ],
+        '£2M': [
+            { text: 'Contractor/Project Manager', link: `${BASE_URL}` },
+            { text: 'Weekly PM Review', link: `${BASE_URL}` },
+        ],
+        '£3M': [
+            { text: 'Project Sign Off Snagging/Quality Control', link: `${BASE_URL}` },
+            { text: 'Documentation Control', link: `${BASE_URL}` },
+        ],
+        '£5M': []
+    },
+    Scale: {
+        '£500K': [
+            { text: 'Organisation Chart', link: `${BASE_URL}` },
+            { text: 'Supplier Terms Negotiated', link: `${BASE_URL}` },
+            { text: 'Project Contracts', link: `${BASE_URL}` },
+            { text: 'VOIP Phone System', link: `${BASE_URL}` },
+        ],
+        '£1M': [
+            { text: 'Holiday/Sickness Management', link: `${BASE_URL}` },
+            { text: 'Client Satisfaction Surveys', link: `${BASE_URL}` },
+            { text: 'Solids/Prepayment cards', link: `${BASE_URL}` },
+        ],
+        '£2M': [
+            { text: 'Company Bible / Training Videos', link: `${BASE_URL}` },
+            { text: 'Partnerships', link: `${BASE_URL}` },
+            { text: 'Job Roles Defined', link: `${BASE_URL}` },
+        ],
+        '£3M': [
+            { text: 'HR Contracts', link: `${BASE_URL}` },
+            { text: 'Job Adverts', link: `${BASE_URL}` },
+            { text: 'Pension, Benefits & Rewards', link: `${BASE_URL}` },
+            { text: 'Training Matrix', link: `${BASE_URL}` },
+        ],
+        '£5M': [
+            { text: 'Reports Dashboard', link: `${BASE_URL}` },
+        ]
+    }
 };
+
+const columns = Object.keys(ROADMAP_CONTENT);
+const revenueRows = ['£500K', '£1M', '£2M', '£3M', '£5M'];
+
+// Find the maximum number of tasks in any column for a given revenue slab
+const getMaxTasksInSlab = (slab) => {
+    let max = 0;
+    columns.forEach(col => {
+        const tasks = ROADMAP_CONTENT[col][slab];
+        if (tasks && tasks.length > max) {
+            max = tasks.length;
+        }
+    });
+    return max;
+};
+
+// Flat list for progress calculation
+const roadmapDataFlat = columns.reduce((acc, stage) => {
+    revenueRows.forEach(slab => {
+        if (ROADMAP_CONTENT[stage][slab]) {
+            ROADMAP_CONTENT[stage][slab].forEach(item => acc.push(item));
+        }
+    });
+    return acc;
+}, []);
 
 // ----------------------------------------------------------------------
 // ROADMAP COMPONENT (Protected Content)
@@ -176,30 +249,28 @@ const Roadmap = ({ userId, handleSignOut }) => {
 
     // --- Progress Calculation ---
     const calculateColumnProgress = (stage) => {
-        const items = ROADMAP_CONTENT[stage];
-        const total = items.length;
+        const stageTasks = roadmapDataFlat.filter(item => 
+            Object.keys(ROADMAP_CONTENT[stage]).some(slab => 
+                ROADMAP_CONTENT[stage][slab].some(taskItem => taskItem.text === item.text)
+            )
+        );
+        const total = stageTasks.length;
         if (total === 0) return { checked: 0, total: 0, percentage: 0 };
         
-        const checked = items.filter(item => checkedItems[item.text]).length;
+        const checked = stageTasks.filter(item => checkedItems[item.text]).length;
         const percentage = Math.round((checked / total) * 100);
         
         return { checked, total, percentage };
     };
 
     const overallProgress = useMemo(() => {
-        let totalItems = 0;
-        let checkedItemsCount = 0;
-
-        columns.forEach(stage => {
-            const { checked, total } = calculateColumnProgress(stage);
-            checkedItemsCount += checked;
-            totalItems += total;
-        });
+        let totalItems = roadmapDataFlat.length;
+        let checkedItemsCount = roadmapDataFlat.filter(item => checkedItems[item.text]).length;
 
         const percentage = totalItems === 0 ? 0 : Math.round((checkedItemsCount / totalItems) * 100);
         
         return { checked: checkedItemsCount, total: totalItems, percentage };
-    }, [checkedItems, columns]);
+    }, [checkedItems]);
 
     if (isDataLoading) {
         return (
@@ -262,27 +333,53 @@ const Roadmap = ({ userId, handleSignOut }) => {
                                     </div>
                                 </div>
 
-                                {/* Task List */}
-                                <ul className="task-list">
-                                    {ROADMAP_CONTENT[stage].map((item) => (
-                                        <li key={item.text} className="task-item">
-                                            <label>
-                                                <input
-                                                    type="checkbox"
-                                                    checked={!!checkedItems[item.text]}
-                                                    onChange={() => handleCheck(item.text)}
-                                                />
-                                                <a 
-                                                    href={item.link} 
-                                                    target="_blank" 
-                                                    rel="noopener noreferrer" 
-                                                    className="task-text-link"
-                                                >
-                                                    {item.text}
-                                                </a>
-                                            </label>
-                                        </li>
-                                    ))}
+                                {/* Task List with Revenue Sections */}
+                                <ul className="aligned-task-list">
+                                    {revenueRows.map((slab, slabIndex) => {
+                                        const slabTasks = ROADMAP_CONTENT[stage][slab] || [];
+                                        const maxTasks = getMaxTasksInSlab(slab);
+                                        const numTasks = slabTasks.length;
+                                        const numPlaceholders = maxTasks - numTasks;
+                                        
+                                        return (
+                                            <React.Fragment key={slab}>
+                                                {/* Render divider before new slab (except the first one) */}
+                                                {slabIndex > 0 && (
+                                                    <li className="revenue-divider-container-aligned">
+                                                        <hr className="revenue-divider-aligned" />
+                                                    </li>
+                                                )}
+
+                                                {/* Render actual tasks */}
+                                                {slabTasks.map((item) => (
+                                                    <li key={item.text} className="task-item">
+                                                        <label>
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={!!checkedItems[item.text]}
+                                                                onChange={() => handleCheck(item.text)}
+                                                            />
+                                                            <a 
+                                                                href={item.link} 
+                                                                target="_blank" 
+                                                                rel="noopener noreferrer" 
+                                                                className="task-text-link"
+                                                            >
+                                                                {item.text}
+                                                            </a>
+                                                        </label>
+                                                    </li>
+                                                ))}
+
+                                                {/* Render placeholders to maintain vertical alignment */}
+                                                {Array.from({ length: numPlaceholders }).map((_, i) => (
+                                                    <li key={`placeholder-${slab}-${i}`} className="task-placeholder">
+                                                        {/* Empty placeholder for spacing */}
+                                                    </li>
+                                                ))}
+                                            </React.Fragment>
+                                        );
+                                    })}
                                 </ul>
                             </div>
                         );
@@ -291,9 +388,11 @@ const Roadmap = ({ userId, handleSignOut }) => {
 
                 {/* Vertical Scale */}
                 <div className="roadmap-scale">
+                    <br /><br /><br /><br /><br />
                     <div className="scale-label">£500K</div>
-                    <div className="scale-bar"></div>
+                    <br /><br />
                     <div className="scale-label">£1M</div>
+                    <br /><br /><br /><br />
                     <div className="scale-label">£2M</div>
                     <div className="scale-label">£3M</div>
                     <div className="scale-label">£5M</div>

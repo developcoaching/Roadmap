@@ -8,19 +8,23 @@ A beautiful, interactive roadmap application designed to help businesses track t
 
 ## 📋 Features
 
-- **Interactive Checklist**: Track your progress with checkboxes that persist in local storage
+- **Firebase Authentication**: Secure user authentication with email/password and Google Sign-In
+- **Cloud-Based Progress**: User progress synced with Firestore database
+- **Interactive Checklist**: Track your progress with checkboxes that persist across devices
 - **Progress Tracking**: 
   - Overall progress bar in the header
   - Individual progress bars for each column
   - Real-time percentage calculations
 - **Revenue-Based Organization**: Tasks organized by revenue milestones (£500K, £1M, £2M, £3M, £5M)
-- **Video Integration**: Clickable task titles that link to tutorial videos
+  - Visual revenue dividers for clear section separation
+  - Aligned task lists across all columns
+- **Video Integration**: All tasks link to centralized video course platform
 - **Responsive Design**: 
   - Desktop-first approach with full feature display
   - Tablet-optimized layout
   - Mobile-friendly vertical stack design
-- **Persistent State**: Your progress is automatically saved to browser local storage
-- **Beautiful UI**: Modern design with brand colors and smooth animations
+- **Persistent State**: Your progress is automatically saved to Firestore and synced across devices
+- **Beautiful UI**: Modern design with brand colors, smooth animations, and revenue tier separators
 
 ---
 
@@ -66,24 +70,43 @@ npm run preview
 
 ---
 
-## 🎥 Adding Video Links
+## 🎥 Video Integration
 
-To add video tutorial links to tasks, you need to edit the `taskMap` object in `src/Roadmap.jsx`:
+All tasks are now linked to a centralized video course platform. The base URL for all videos is configured in `src/AuthApp.jsx`:
 
-### Step 1: Locate the Task Map
-
-Open `src/Roadmap.jsx` and find the `taskMap` object (starts around line 8).
-
-### Step 2: Add Your Video URLs
-
-Each task object has a `videoUrl` property. Simply add your video URL:
+### Current Video Platform
 
 ```javascript
-const taskMap = {
+const BASE_URL = 'https://developcoaching.memberships.msgsndr.com/products/b472d77a-977d-493d-9a8a-005794ad92c7';
+```
+
+### Changing the Video Base URL
+
+To update the video platform URL:
+
+1. Open `src/AuthApp.jsx`
+2. Locate the `BASE_URL` constant (around line 40)
+3. Update it to your new platform URL:
+
+```javascript
+const BASE_URL = 'https://your-new-video-platform.com/course-id';
+```
+
+All task links will automatically use this base URL.
+
+### Task Structure with Revenue Tiers
+
+Tasks are organized by revenue milestones with visual separators:
+
+```javascript
+const ROADMAP_CONTENT = {
   Plan: {
     '£500K': [
-      { task: '1 Year Forecast', videoUrl: 'https://youtu.be/your-video-id' },
-      { task: 'Asana Task Management', videoUrl: 'https://vimeo.com/your-video' },
+      { text: '1 Year Forecast', link: `${BASE_URL}` },
+      { text: 'Asana Task Management', link: `${BASE_URL}` },
+    ],
+    '£1M': [
+      { text: 'Software Tracking', link: `${BASE_URL}` },
       // ... more tasks
     ],
     // ... more revenue levels
@@ -92,32 +115,7 @@ const taskMap = {
 };
 ```
 
-### Step 3: Video URL Format
-
-You can use any video platform:
-- **YouTube**: `https://youtu.be/VIDEO_ID` or `https://www.youtube.com/watch?v=VIDEO_ID`
-- **Vimeo**: `https://vimeo.com/VIDEO_ID`
-- **Custom hosting**: Any direct video URL
-- **Leave empty**: Tasks without a URL (`videoUrl: ''`) will display as plain text
-
-### Example
-
-```javascript
-Attract: {
-  '£500K': [
-    { 
-      task: 'USP', 
-      videoUrl: 'https://youtu.be/abc123xyz' 
-    },
-    { 
-      task: 'Brand Guidelines', 
-      videoUrl: '' // No video yet
-    },
-  ],
-}
-```
-
-When a task has a video URL, the title becomes a clickable link that opens the video in a new tab.
+Each task link opens the video course in a new tab when clicked.
 
 ---
 
@@ -144,8 +142,10 @@ Roadmap (DEVELOP COACHING)/
 ```
 
 **⭐ Key Files for Customization**:
-- `src/Roadmap.jsx` - Contains all task data and logic
-- `src/Roadmap.css` - Contains all visual styling
+- `src/AuthApp.jsx` - Main roadmap component with authentication, task data, and logic
+- `src/AuthApp.css` - Main roadmap styles with revenue section styling
+- `src/Roadmap.jsx` - Alternative standalone roadmap component (localStorage-based)
+- `src/Roadmap.css` - Alternative roadmap styles
 
 ---
 
@@ -153,7 +153,7 @@ Roadmap (DEVELOP COACHING)/
 
 ### Changing Brand Colors
 
-Edit `src/Roadmap.css` - The color palette is defined at the top:
+Edit `src/AuthApp.css` - The color palette is defined at the top:
 
 ```css
 /* Color Palette:
@@ -169,26 +169,39 @@ Use Find & Replace to update colors throughout the file.
 
 ### Adding New Tasks
 
-1. Open `src/Roadmap.jsx`
-2. Find the appropriate column and revenue level in `taskMap`
+1. Open `src/AuthApp.jsx`
+2. Find the appropriate column and revenue level in `ROADMAP_CONTENT`
 3. Add your task object:
    ```javascript
-   { task: 'Your New Task', videoUrl: 'optional-url' }
+   { text: 'Your New Task', link: `${BASE_URL}` }
    ```
 
 ### Adding New Columns
 
-1. Add a new key to `taskMap` with the column name
-2. Define tasks for each revenue level
+1. Add a new key to `ROADMAP_CONTENT` with the column name
+2. Define tasks for each revenue level (£500K, £1M, £2M, £3M, £5M)
 3. The application will automatically render the new column
 
 ### Changing Revenue Levels
 
-1. Modify the `revenueRows` array in `src/Roadmap.jsx`:
+1. Modify the `revenueRows` array in `src/AuthApp.jsx`:
    ```javascript
    const revenueRows = ['£500K', '£1M', '£2M', '£3M', '£5M'];
    ```
-2. Update all revenue levels in `taskMap` to match
+2. Update all revenue levels in `ROADMAP_CONTENT` to match
+
+### Customizing Revenue Dividers
+
+The yellow dividers between revenue sections can be styled in `src/AuthApp.css`:
+
+```css
+.revenue-divider-aligned {
+    border: none;
+    border-top: 2px solid #fdce36; /* Change color/thickness here */
+    width: 100%;
+    margin: 0;
+}
+```
 
 ---
 
@@ -212,10 +225,26 @@ Use Find & Replace to update colors throughout the file.
 
 ## 💾 Data Persistence
 
-The application automatically saves your progress using the browser's localStorage:
-- **Storage Key**: `roadmapChecks`
+The application uses **Firebase Firestore** for cloud-based data persistence:
+
+### User Authentication
+- Email/Password authentication
+- Google Sign-In integration
+- Password reset functionality
+- Profile data collection (name, company, phone)
+
+### Progress Storage
+- **Storage Location**: Firebase Firestore database
+- **Path**: `artifacts/{appId}/users/{userId}/roadmap_progress/checks`
 - **Data Format**: JSON object with task names as keys and boolean values
-- **Clearing Progress**: Clear browser data or localStorage to reset
+- **Sync**: Progress automatically syncs across all devices where user is logged in
+
+### Profile Data
+- **Storage Location**: `artifacts/{appId}/users/{userId}/profile_data/info`
+- **Data**: Name, email, company name, phone number, registration date
+
+### Alternative: Local Storage Version
+The `Roadmap.jsx` component provides a simpler, localStorage-based version without authentication for standalone use.
 
 ---
 
@@ -252,10 +281,19 @@ For questions or support regarding The Develop Mastermind® Roadmap, please cont
 
 ## 🔄 Version History
 
+### Version 2.0.0 (Latest)
+- **Firebase Integration**: Full authentication system with email/password and Google Sign-In
+- **Firestore Database**: Cloud-based progress storage that syncs across devices
+- **Revenue Section Dividers**: Visual yellow dividers between revenue tiers (£500K, £1M, £2M, £3M, £5M)
+- **Aligned Task Lists**: Tasks vertically aligned across all columns using placeholders
+- **Centralized Video Platform**: All video links now point to unified course URL
+- **Enhanced UI**: Improved styling with revenue-based organization and visual separators
+- **Profile Management**: User profile data collection and storage
+
 ### Version 1.0.0
 - Initial release
 - 5 columns with revenue-based task organization
-- Progress tracking and persistence
+- Progress tracking and persistence (localStorage)
 - Video link integration
 - Fully responsive design
 
