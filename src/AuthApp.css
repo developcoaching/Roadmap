@@ -1,0 +1,385 @@
+/* ------------------------------------------------------------------ */
+/* BASE STYLES (Desktop First Approach) */
+/* ------------------------------------------------------------------ */
+/* Color Palette:
+ * #fdce36 (Yellow/Gold)
+ * #fbaa35 (Orange/Yellow)
+ * #414042 (Dark Grey)
+ * #d2d2d2 (Light Grey)
+ */
+ body {
+    margin: 0;
+    background-color: #414042;
+    font-family: 'Arial', sans-serif;
+    color: #414042;
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+.L{
+    color : #fdce36
+}
+.auth-title { font-size: 18px; font-weight: 400; margin: 10px 0 0; z-index: 1; } /* --- AUTH CONTENT (Form Area) --- */ .auth-content { padding: 30px; background-color: #f7f7f7; /* Light grey background for form area */ } .error-message { background-color: #fcebeb; color: #cc0000; padding: 12px; border: 1px solid #cc0000; border-radius: 6px; margin-bottom: 15px; font-size: 14px; text-align: center; } /* --- FORM STYLES --- */ .form-content { display: flex; flex-direction: column; gap: 20px; align-items: stretch; } input[type="email"], input[type="password"], input[type="text"], input[type="tel"] { padding: 12px 15px; border: 1px solid #d2d2d2; border-radius: 8px; font-size: 16px; color: #414042; outline: none; transition: border-color 0.3s, box-shadow 0.3s; width: 100%; box-sizing: border-box; } input::placeholder { color: #a0a0a0; } input:focus { border-color: #fdce36; box-shadow: 0 0 5px rgba(253, 206, 54, 0.3); } .input-hint { font-size: 12px; color: #888; margin-top: -5px; text-align: center; } .step-title { font-size: 20px; font-weight: 600; color: #414042; margin: 0 0 15px; text-align: center; } .password-input-group { position: relative; display: flex; align-items: center; } .password-input-group input { width: 100%; padding-right: 40px; } .password-toggle { position: absolute; right: 15px; cursor: pointer; user-select: none; font-size: 18px; color: #414042; transition: color 0.2s; } .password-toggle:hover { color: #fdce36; } .primary-button { background-color: #fdce36; color: #414042; font-weight: 700; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; transition: background-color 0.2s, transform 0.1s; width: 100%; } .primary-button:hover { background-color: #fbaa35; transform: translateY(-1px); } .secondary-button { background-color: #fff; color: #414042; font-weight: 600; padding: 12px; border: 1px solid #d2d2d2; border-radius: 8px; cursor: pointer; font-size: 16px; transition: background-color 0.2s, border-color 0.2s; display: flex; align-items: center; justify-content: center; width: 100%; } .secondary-button:hover { background-color: #f7f7f7; border-color: #fdce36; } .google-button::before { content: 'G'; font-family: Arial, sans-serif; font-weight: bold; color: #ea4335; font-size: 18px; margin-right: 8px; } .auth-options-divider { text-align: center; margin: 10px 0; color: #888; } .auth-options-or { text-align: center; font-size: 12px; color: #aaa; margin: 15px 0; position: relative; text-transform: uppercase; letter-spacing: 1px; } .auth-options-or::before, .auth-options-or::after { content: ''; position: absolute; top: 50%; width: 40%; height: 1px; background-color: #d2d2d2; } .auth-options-or::before { left: 0; } .auth-options-or::after { right: 0; } .link-text { color: #fdce36; cursor: pointer; font-weight: 600; transition: color 0.2s; } .link-text:hover { color: #fbaa35; text-decoration: underline; } .back-link { display: block; margin-top: 10px; } /* --- AUTH FOOTER --- */ .auth-footer { padding: 20px 30px; text-align: center; font-size: 14px; border-top: 1px solid #d2d2d2; color: #888; } .auth-footer p { margin: 0; } /* --- LOADING STYLES --- */ .loading-spinner { border: 4px solid #f3f3f3; border-top: 4px solid #fdce36; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; } .loading-text { color: #d2d2d2; font-size: 16px; text-align: center; } @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+
+
+
+/* --- AUTH WRAPPER (Full Screen Container) --- */ .auth-wrapper { display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; box-sizing: border-box; background-color: #414042; width: 100vw; } /* --- AUTH CONTAINER (The Card) --- */ .auth-container { width: 100%; max-width: 420px; /* Slightly wider for better content fit */ background-color: #fff; border-radius: 12px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); overflow: hidden; display: flex; flex-direction: column; } /* --- AUTH HEADER --- */ .auth-header { background-color: #414042; color: #fff; padding: 30px 20px 20px; position: relative; overflow: hidden; text-align: center; } .auth-header::before { content: ''; position: absolute; top: -80px; left: -120px; width: 200px; height: 200px; background-color: #fdce36; transform: rotate(-45deg); z-index: 0; } .logo-text { font-weight: 700; font-size: 28px; color: #fff; position: relative; letter-spacing: 1px; z-index: 1; } .logo-text::before { content: ''; position: absolute; bottom: 2px; right: -3px; width: 8px; height: 8px; background-color: #fdce36; transform: rotate(45deg); }
+.roadmap-container {
+    font-family: 'Arial', sans-serif;
+    padding: 0;
+    background-color: #f7f7f7; 
+    min-width: 320px;
+    max-width: 1400px;
+    margin: 20px auto;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+}
+
+/* -------------------- Header Section -------------------- */
+.roadmap-header {
+    display: grid;
+    grid-template-areas: 
+        "logo title progress";
+    grid-template-columns: auto 1fr auto; 
+    align-items: center;
+    padding: 15px;
+    background-color: #414042;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+}
+
+.logo-section { grid-area: logo; z-index: 1; margin-right: 20px; }
+.title { grid-area: title; z-index: 1; text-align: left; font-size: 28px; line-height: 1.2; }
+.overall-progress { grid-area: progress; z-index: 1; margin-left: 20px; }
+
+.roadmap-header::before {
+    content: '';
+    position: absolute;
+    top: -50px;
+    left: -150px;
+    width: 250px;
+    height: 250px;
+    background-color: #fdce36;
+    transform: rotate(-45deg);
+    z-index: 0;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
+
+.logo-text {
+    font-weight: bold;
+    font-size: 28px;
+    color: #fff;
+    position: relative;
+    letter-spacing: 1px;
+}
+.logo-text::before {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    right: -3px;
+    width: 8px;
+    height: 8px;
+    background-color: #fdce36;
+    transform: rotate(45deg);
+}
+
+/* -------------------- Overall Progress Bar Styling -------------------- */
+.overall-progress {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #fff;
+    font-size: 14px;
+}
+
+.progress-text {
+    margin-bottom: 5px;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.progress-bar-container {
+    width: 600px;
+    height: 15px;
+    background-color: #d2d2d2;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background-color: #fdce36;
+    transition: width 0.5s ease-in-out;
+}
+
+
+/* -------------------- Main Content Area -------------------- */
+.roadmap-content {
+    display: flex;
+    gap: 0;
+    background-color: #f7f7f7;
+    padding: 20px;
+}
+
+.roadmap-columns {
+    display: flex;
+    flex: 1;
+    gap: 1.5%;
+    overflow-x: hidden;
+    min-width: 0;
+}
+
+.stage-column {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 15px;
+    flex: 1 1 0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    background-color: #fff;
+}
+
+/* Column Header and Small Progress */
+.column-header-progress {
+    position: relative;
+    margin-bottom: 10px;
+}
+.column-header-progress h2 {
+    background-color: #d2d2d2;
+    color: #414042;
+    text-align: left;
+    padding: 10px 15px;
+    border-radius: 4px 4px 0 0;
+    margin: -15px -15px 0 -15px; 
+    font-size: 1.1em;
+}
+
+.progress-info {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    display: flex; 
+    flex-direction: column;
+    align-items: flex-end; 
+    font-size: 10px;
+    color: #414042;
+}
+
+.progress-bar-small {
+    width: 100px;
+    height: 10px;
+    background-color: #d2d2d2;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.progress-bar-fill-small {
+    height: 100%;
+    background-color: #fdce36;
+    transition: width 0.5s ease-in-out;
+}
+
+
+/* Task List Styling */
+.task-list { list-style: none; padding: 0; margin: 0; }
+.task-item {
+    margin-bottom: 8px;
+    padding: 5px 0;
+    border-bottom: 1px dashed #e0e0e0;
+}
+.task-item:last-child { border-bottom: none; }
+.task-item label {
+    display: flex;
+    align-items: flex-start;
+    cursor: pointer;
+    font-size: 13px;
+    color: #414042;
+    line-height: 1.4;
+}
+.task-item input[type="checkbox"] {
+    margin-right: 10px;
+    width: 14px;
+    height: 14px;
+    appearance: none;
+    -webkit-appearance: none;
+    border: 1px solid #d2d2d2;
+    border-radius: 2px;
+    flex-shrink: 0;
+    background-color: #f0f0f0;
+    position: relative;
+    top: 2px;
+}
+.task-item input[type="checkbox"]:checked {
+    background-color: #fdce36;
+    border-color: #fdce36;
+}
+.task-item input[type="checkbox"]:checked::after {
+    content: '';
+    display: block;
+    width: 6px;
+    height: 10px;
+    border: solid #414042;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+    position: absolute;
+    left: 4px;
+    top: 0px;
+}
+
+
+/* -------------------- Vertical Scale on the Right -------------------- */
+.roadmap-scale {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-end;
+    width: 80px;
+    padding: 20px 0;
+    font-weight: bold;
+    font-size: 14px;
+    position: relative;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.roadmap-scale::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, #fdce36 0%, #fbaa35 100%);
+    opacity: 0.9;
+    z-index: 0;
+}
+
+.scale-label {
+    position: relative;
+    right: 0;
+    margin-bottom: auto;
+    padding: 5px 10px;
+    background-color: transparent;
+    color: #414042;
+    text-align: right;
+    z-index: 1;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.roadmap-scale .scale-label:last-child {
+    margin-bottom: 0;
+}
+
+
+/* ------------------------------------------------------------------ */
+/* MEDIA QUERIES FOR TABLETS & SMALL DESKTOPS (Max Width 1024px) */
+/* ------------------------------------------------------------------ */
+@media (max-width: 1024px) {
+    .roadmap-container {
+        margin: 10px auto;
+        padding: 0;
+    }
+    
+    .roadmap-header {
+        grid-template-columns: auto 1fr; 
+        grid-template-areas: 
+            "logo title"
+            "progress progress";
+        padding: 15px;
+    }
+    .overall-progress { 
+        margin-left: 0;
+        margin-top: 10px;
+        align-items: flex-start;
+    }
+    .progress-bar-container {
+        width: 200px;
+    }
+    .title {
+        font-size: 22px;
+    }
+    .roadmap-content {
+        padding: 15px;
+    }
+    .roadmap-scale {
+        width: 70px; 
+        padding: 15px 0;
+    }
+    .scale-label {
+        padding: 3px 8px;
+    }
+}
+
+
+/* ------------------------------------------------------------------ */
+/* MEDIA QUERIES FOR MOBILE DEVICES (Max Width 768px) */
+/* ------------------------------------------------------------------ */
+@media (max-width: 768px) {
+    .roadmap-container {
+        margin: 0;
+        border-radius: 0;
+        max-width: 100%;
+    }
+
+    /* HEADER REFINEMENT: Stack Everything Vertically */
+    .roadmap-header {
+        grid-template-columns: 1fr;
+        grid-template-areas: 
+            "logo"
+            "title"
+            "progress";
+        padding: 15px;
+        position: static;
+    }
+
+    .roadmap-header::before {
+        display: none;
+    }
+
+    .logo-section {
+        margin-right: 0;
+        margin-bottom: 5px;
+    }
+
+    .title {
+        text-align: left;
+        font-size: 18px;
+        margin-bottom: 10px;
+    }
+
+    .overall-progress {
+        width: 100%;
+        align-items: flex-start;
+    }
+
+    .progress-bar-container {
+        width: 100%;
+    }
+
+    /* MAIN CONTENT REFINEMENT: Stack Columns */
+    .roadmap-content {
+        flex-direction: column;
+        gap: 20px;
+        padding: 15px;
+    }
+
+    .roadmap-columns {
+        flex-direction: column;
+        overflow-x: visible;
+        gap: 20px;
+    }
+
+    .stage-column {
+        width: 100%;
+        flex-shrink: 1;
+        box-sizing: border-box;
+    }
+
+    /* Vertical Scale: Hide it on mobile to save screen space */
+    .roadmap-scale {
+        display: none;
+    }
+}
