@@ -85,6 +85,7 @@ const ROADMAP_CONTENT = {
             { text: 'Page 1 Google key search terms', link: `${BASE_URL}` },
             { text: 'Blogs/Vlogs', link: `${BASE_URL}` },
             { text: 'Paid Ads', link: `${BASE_URL}` },
+            { text: 'Develop website', link: `${BASE_URL}` },
         ],
         '£5M': []
     },
@@ -108,6 +109,7 @@ const ROADMAP_CONTENT = {
         '£3M': [
             { text: 'Quote to Convert Campaign', link: `${BASE_URL}` },
             { text: 'Long Term Nurture', link: `${BASE_URL}` },
+            { text: 'Develop website', link: `${BASE_URL}` },
         ],
         '£5M': []
     },
