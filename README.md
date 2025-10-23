@@ -5,6 +5,8 @@ A beautiful, interactive roadmap application designed to help businesses track t
 
 Deployed site-https://roadmap-6gmk.vercel.app/
 GHL Site for the users-https://pages.develop-coaching.co.uk/roadmap-page
+I have covered the entire process in this link -https://www.loom.com/share/c2ba0440d88a456dab26a7ab8c674a06?sid=c4fbded5-213c-43eb-8f86-31c198dc20f2
+I have created the Loom explaining everything and pushing changes inside the code as well-https://www.loom.com/share/acdc37ebd69c467bb75c547f90d54b72?sid=08f9020c-bd52-4084-92ad-bb97fdfa0d8e
 
 ---
 
