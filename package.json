@@ -3,18 +3,18 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-"scripts": {
-  "dev": "vite",
-  "build": "vite build",
-  "preview": "vite preview",
-  "deploy": "vite build && gh-pages -d dist"
-},
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "deploy": "vite build && gh-pages -d dist"
+  },
   "dependencies": {
+    "@supabase/supabase-js": "^2.90.1",
     "@tensorflow-models/mobilenet": "^2.1.1",
     "@tensorflow/tfjs": "^4.22.0",
     "cors": "^2.8.5",
     "express": "^5.1.0",
-    "firebase": "^12.3.0",
     "firebase-admin": "^13.5.0",
     "nodemon": "^3.1.10",
     "react": "^19.0.0",

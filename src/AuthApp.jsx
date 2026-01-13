@@ -1,38 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { initializeApp } from 'firebase/app';
-import {
-    getAuth,
-    onAuthStateChanged,
-    createUserWithEmailAndPassword,
-    signInWithEmailAndPassword,
-    sendPasswordResetEmail,
-    signInWithPopup, 
-    GoogleAuthProvider,
-    signOut,
-} from 'firebase/auth';
-import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore'; 
-import './AuthApp.css'
-
-// --- MOCK CONFIGURATION ---
-const MOCK_FIREBASE_CONFIG = {
-    apiKey: "AIzaSyCz1NAJzZxtG65sRUN2NfgIOH3rWL-yZKQ", 
-    authDomain: "roadmap-webpage-6b7e4.firebaseapp.com",
-    projectId: "roadmap-webpage-6b7e4",
-    storageBucket: "roadmap-webpage-6b7e4.appspot.com",
-    messagingSenderId: "1234567890",
-    appId: "1:1234567890:web:mockwebid"
-};
-
-// --- GLOBAL VARIABLES (Provided by Environment or Mock) ---
-const FIREBASE_CONFIG = typeof __firebase_config !== 'undefined' 
-    ? JSON.parse(__firebase_config) 
-    : MOCK_FIREBASE_CONFIG;
-const appId = 'default-app-id'; 
-
-// Initialize Firebase App and Services
-const app = initializeApp(FIREBASE_CONFIG);
-const auth = getAuth(app);
-const db = getFirestore(app); 
+import { supabase } from './lib/supabase';
+import './AuthApp.css' 
 
 // ----------------------------------------------------------------------
 // PRE-PROCESSED DATA (Roadmap Content) - Organized by Revenue Tiers
@@ -197,46 +165,60 @@ const roadmapDataFlat = columns.reduce((acc, stage) => {
 const Roadmap = ({ userId, handleSignOut }) => {
     const [checkedItems, setCheckedItems] = useState({});
     const [isDataLoading, setIsDataLoading] = useState(true);
-    
-    // Firestore Path for Progress: artifacts/{appId}/users/{userId}/roadmap_progress/checks
-    const roadmapProgressRef = doc(db, 'artifacts', appId, 'users', userId, 'roadmap_progress', 'checks');
-    
+
     const columns = Object.keys(ROADMAP_CONTENT);
-    
-    // --- Data Loading (Firestore) ---
+
+    // --- Data Loading (Supabase) ---
     useEffect(() => {
         if (!userId) return;
 
         const loadProgress = async () => {
             setIsDataLoading(true);
             try {
-                const docSnap = await getDoc(roadmapProgressRef);
-                if (docSnap.exists()) {
-                    setCheckedItems(docSnap.data().items || {});
+                const { data, error } = await supabase
+                    .from('roadmap_progress')
+                    .select('items')
+                    .eq('user_id', userId)
+                    .single();
+
+                if (error && error.code !== 'PGRST116') {
+                    // PGRST116 = no rows returned, which is fine for new users
+                    console.error("Error loading progress:", error);
+                }
+
+                if (data) {
+                    setCheckedItems(data.items || {});
                 } else {
                     console.log("No existing roadmap progress found, starting fresh.");
                     setCheckedItems({});
                 }
             } catch (error) {
-                console.error("Error loading progress from Firestore:", error);
+                console.error("Error loading progress from Supabase:", error);
             } finally {
                 setIsDataLoading(false);
             }
         };
         loadProgress();
-    }, [userId]); 
+    }, [userId]);
 
-    // --- Data Saving (Firestore) ---
+    // --- Data Saving (Supabase) ---
     const saveProgress = useCallback(async (newCheckedItems) => {
         try {
-            await setDoc(roadmapProgressRef, { 
-                items: newCheckedItems, 
-                updatedAt: new Date().toISOString() 
-            });
+            const { error } = await supabase
+                .from('roadmap_progress')
+                .upsert({
+                    user_id: userId,
+                    items: newCheckedItems,
+                    updated_at: new Date().toISOString()
+                }, { onConflict: 'user_id' });
+
+            if (error) {
+                console.error("Error saving progress:", error);
+            }
         } catch (e) {
             console.error("Error saving progress:", e);
         }
-    }, [roadmapProgressRef]); 
+    }, [userId]); 
 
     // --- Checkbox Handler ---
     const handleCheck = (itemText) => {
@@ -410,49 +392,91 @@ const Roadmap = ({ userId, handleSignOut }) => {
 
 const AuthApp = () => {
     const [user, setUser] = useState(null);
-    const [currentPage, setCurrentPage] = useState('login'); 
+    const [currentPage, setCurrentPage] = useState('login');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [tempUserData, setTempUserData] = useState({}); 
+    const [tempUserData, setTempUserData] = useState({});
     const [passwordShown, setPasswordShown] = useState(false);
-    
+
     // otpEmail is used to display the email during the reset flow
     const [otpEmail, setOtpEmail] = useState('');
 
-    const initDatabase = useCallback(async () => {
-        // Initialization handled globally
-    }, []); 
-
-    // --- Firebase Auth State Listener ---
+    // --- Supabase Auth State Listener ---
     useEffect(() => {
-        initDatabase(); 
         let isInitialLoad = true;
 
-        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+        // Check current session
+        const checkSession = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            const currentUser = session?.user || null;
             setUser(currentUser);
             setLoading(false);
 
-            if (isInitialLoad || currentPage === 'login') {
-                if (currentUser) {
-                    if (currentPage !== 'register_step2') {
-                        // User is authenticated, route to protected content
+            if (currentUser) {
+                // Check if profile exists
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('name, company_name')
+                    .eq('id', currentUser.id)
+                    .single();
+
+                if (!profile?.company_name && currentPage !== 'register_step2') {
+                    // Profile incomplete, go to step 2
+                    setTempUserData({
+                        userId: currentUser.id,
+                        name: profile?.name || currentUser.user_metadata?.name || '',
+                        email: currentUser.email || ''
+                    });
+                    setCurrentPage('register_step2');
+                } else if (currentPage !== 'register_step2') {
+                    setCurrentPage('roadmap');
+                }
+            } else {
+                setCurrentPage('login');
+            }
+        };
+
+        checkSession();
+
+        // Listen for auth changes
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+            const currentUser = session?.user || null;
+            setUser(currentUser);
+            setLoading(false);
+
+            if (!isInitialLoad) {
+                if (currentUser && currentPage === 'login') {
+                    // Check profile completion
+                    const { data: profile } = await supabase
+                        .from('profiles')
+                        .select('company_name')
+                        .eq('id', currentUser.id)
+                        .single();
+
+                    if (!profile?.company_name) {
+                        setTempUserData({
+                            userId: currentUser.id,
+                            name: currentUser.user_metadata?.name || '',
+                            email: currentUser.email || ''
+                        });
+                        setCurrentPage('register_step2');
+                    } else {
                         setCurrentPage('roadmap');
                     }
-                } else {
-                    // No user, stay on login page
+                } else if (!currentUser) {
                     setCurrentPage('login');
                 }
             }
             isInitialLoad = false;
         });
 
-        return () => unsubscribe();
-    }, [initDatabase]); 
+        return () => subscription.unsubscribe();
+    }, [currentPage]); 
 
     // --- Auth Handlers (Sign Out) ---
     const handleSignOut = useCallback(async () => {
         try {
-            await signOut(auth);
+            await supabase.auth.signOut();
             setUser(null);
             setCurrentPage('login');
         } catch (e) {
@@ -466,20 +490,33 @@ const AuthApp = () => {
         e.preventDefault();
         setError('');
         const { name, email, password } = tempUserData;
-        
+
         if (!name || !email || !password || password.length < 8) {
             setError("Please ensure all fields are filled and the password is at least 8 characters.");
             return;
         }
 
         try {
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            // On successful creation, proceed to Step 2
-            setTempUserData(prev => ({ ...prev, userId: userCredential.user.uid, email: email, name: name }));
-            setCurrentPage('register_step2');
+            const { data, error } = await supabase.auth.signUp({
+                email,
+                password,
+                options: {
+                    data: { name }
+                }
+            });
+
+            if (error) {
+                setError(error.message);
+                return;
+            }
+
+            if (data.user) {
+                // On successful creation, proceed to Step 2
+                setTempUserData(prev => ({ ...prev, userId: data.user.id, email: email, name: name }));
+                setCurrentPage('register_step2');
+            }
         } catch (e) {
-            let message = e.message.replace('Firebase: ', '');
-            setError(message);
+            setError(e.message);
             console.error(e);
         }
     };
@@ -496,108 +533,95 @@ const AuthApp = () => {
         }
 
         try {
-            await signInWithEmailAndPassword(auth, email, password);
-            // Redirect handled by onAuthStateChanged listener
+            const { error } = await supabase.auth.signInWithPassword({
+                email,
+                password
+            });
+
+            if (error) {
+                setError("Invalid credentials. Please check your email and password.");
+                console.error(error);
+            }
+            // Redirect handled by onAuthStateChange listener
         } catch (e) {
-            setError(e.message.replace('Firebase: Error (auth/', 'Invalid credentials. Please check your email and password. (').replace(/\)\./g, ')'));
+            setError("Invalid credentials. Please check your email and password.");
             console.error(e);
         }
     };
 
-    // --- Google Sign-In with Profile Check ---
-    const handleGoogleSignIn = async () => {
-        setError('');
-        const provider = new GoogleAuthProvider();
-        try {
-            const result = await signInWithPopup(auth, provider);
-            const user = result.user;
-            const userUid = user.uid;
-
-            // Check for profile data in Firestore (to ensure Step 2 completion)
-            const userProfileRef = doc(db, 'artifacts', appId, 'users', userUid, 'profile_data', 'info');
-            const docSnap = await getDoc(userProfileRef);
-
-            if (!docSnap.exists()) {
-                // If profile data is missing, force Step 2 registration
-                setTempUserData({
-                    userId: userUid,
-                    name: user.displayName || '',
-                    email: user.email || ''
-                });
-                setCurrentPage('register_step2');
-            } else {
-                // Profile exists: Sign-in complete, redirects to roadmap
-                setUser(user);
-            }
-        } catch (e) {
-            setError(e.message.replace('Firebase: ', ''));
-            console.error("Google Sign-In Popup Error:", e);
-        }
-    };
-
-    // --- Complete Registration (Step 2: Firestore Save) ---
+    // --- Complete Registration (Step 2: Supabase Save) ---
     const handleCompleteRegistration = async (e) => {
         e.preventDefault();
         setError('');
         const { companyName, phoneNumber, userId, name, email } = tempUserData;
-        
+
         if (!companyName || !phoneNumber || !userId || !email) {
             setError("Missing data. Please try registering again.");
             return;
         }
-        
+
         if (!/^\+\d{10,15}$/.test(phoneNumber)) {
             setError("Please use the correct international phone format (e.g., +447700900000).");
             return;
         }
-        window.location.reload(true);
 
         try {
-            // Save Profile Data to Firestore
-            const userRef = doc(db, 'artifacts', appId, 'users', userId, 'profile_data', 'info');
-            await setDoc(userRef, {
-                name: name,
-                email: email,
-                companyName: companyName,
-                phoneNumber: phoneNumber,
-                registrationDate: new Date().toISOString(),
-            });
-            if (auth.currentUser) {
-                setUser(auth.currentUser); // <-- This forces the immediate re-render as a logged-in user
+            // Save Profile Data to Supabase
+            const { error } = await supabase
+                .from('profiles')
+                .upsert({
+                    id: userId,
+                    name: name,
+                    email: email,
+                    company_name: companyName,
+                    phone_number: phoneNumber,
+                    registration_date: new Date().toISOString(),
+                }, { onConflict: 'id' });
+
+            if (error) {
+                setError("Failed to save profile data. Please try again.");
+                console.error("Supabase Save Error:", error);
+                return;
             }
+
+            // Get current session user
+            const { data: { user: currentUser } } = await supabase.auth.getUser();
+            if (currentUser) {
+                setUser(currentUser);
+            }
+
             // Redirect to roadmap
-           
-            setCurrentPage('roadmap'); 
+            setCurrentPage('roadmap');
         } catch (e) {
             setError("Failed to save profile data. Please try again.");
-            console.error("Firestore Save Error:", e);
+            console.error("Supabase Save Error:", e);
         }
     };
 
-    // --- Password Reset: Send Email (Firebase Auth) ---
+    // --- Password Reset: Send Email (Supabase Auth) ---
     const handleSendOtp = async (e) => {
         e.preventDefault();
         setError('');
         const email = e.target.email.value;
-        setOtpEmail(email); 
-        
+        setOtpEmail(email);
+
         try {
-            // Firebase Auth automatically checks if the email exists
-            await sendPasswordResetEmail(auth, email);
-            
+            const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                redirectTo: `${window.location.origin}/reset-password`,
+            });
+
+            if (error) {
+                setError(error.message);
+                console.error("Password Reset Error:", error);
+                return;
+            }
+
             setError("A password reset link has been sent to your email. Please check your inbox and spam folder.");
             // Send user to an informational screen before routing to login
-            setCurrentPage('verify_otp'); 
-            
+            setCurrentPage('verify_otp');
+
         } catch (e) {
-            let message = e.message.replace('Firebase: ', '');
-            if (message.includes('auth/user-not-found')) {
-                // This is generally hidden from the user for security, but we show a gentle error here
-                message = "The email address is not registered in our system.";
-            } else if (message.includes('auth/missing-android-pkg-name') || message.includes('auth/missing-ios-bundle-id')) {
-                message = "The password reset link requires proper domain/package configuration in your Firebase project.";
-            }
-            setError(message);
+            setError("Failed to send password reset email. Please try again.");
             console.error("Password Reset Error:", e);
         }
     };
@@ -622,7 +646,7 @@ const AuthApp = () => {
     const renderAuthForm = () => {
         switch (currentPage) {
             case 'register_step1':
-                return <RegisterStep1 setTempUserData={setTempUserData} tempUserData={tempUserData} setError={setError} setCurrentPage={setCurrentPage} handleGoogleSignIn={handleGoogleSignIn} handleEmailPasswordRegister={handleEmailPasswordRegister} />;
+                return <RegisterStep1 setTempUserData={setTempUserData} tempUserData={tempUserData} setError={setError} setCurrentPage={setCurrentPage} handleEmailPasswordRegister={handleEmailPasswordRegister} />;
             case 'register_step2':
                 return <RegisterStep2 setTempUserData={setTempUserData} tempUserData={tempUserData} setError={setError} handleCompleteRegistration={handleCompleteRegistration} />;
             case 'forgot_password':
@@ -632,10 +656,10 @@ const AuthApp = () => {
             case 'reset_password':
                 return <ResetPassword handleResetPassword={handleResetPassword} setError={setError} setCurrentPage={setCurrentPage} passwordShown={passwordShown} setPasswordShown={setPasswordShown} />;
             case 'roadmap':
-                return user ? <Roadmap userId={user.uid} handleSignOut={handleSignOut} /> : null;
+                return user ? <Roadmap userId={user.id} handleSignOut={handleSignOut} /> : null;
             case 'login':
             default:
-                return <Login setTempUserData={setTempUserData} tempUserData={tempUserData} setError={setError} setCurrentPage={setCurrentPage} handleEmailPasswordSignIn={handleEmailPasswordSignIn} handleGoogleSignIn={handleGoogleSignIn} passwordShown={passwordShown} setPasswordShown={setPasswordShown} />;
+                return <Login setTempUserData={setTempUserData} tempUserData={tempUserData} setError={setError} setCurrentPage={setCurrentPage} handleEmailPasswordSignIn={handleEmailPasswordSignIn} passwordShown={passwordShown} setPasswordShown={setPasswordShown} />;
         }
     };
 
@@ -679,20 +703,20 @@ const AuthApp = () => {
 
 // --- Sub-Components for Views (No change needed) ---
 
-const Login = ({ setTempUserData, tempUserData, setError, setCurrentPage, handleEmailPasswordSignIn, handleGoogleSignIn, passwordShown, setPasswordShown }) => (
+const Login = ({ setTempUserData, tempUserData, setError, setCurrentPage, handleEmailPasswordSignIn, passwordShown, setPasswordShown }) => (
     <form onSubmit={handleEmailPasswordSignIn} className="form-content">
-        <input 
-            type="email" 
-            placeholder="Email (Organizational or Gmail)" 
-            value={tempUserData.email || ''} 
+        <input
+            type="email"
+            placeholder="Email"
+            value={tempUserData.email || ''}
             onChange={(e) => setTempUserData(p => ({ ...p, email: e.target.value }))}
             required
         />
         <div className="password-input-group">
-            <input 
-                type={passwordShown ? 'text' : 'password'} 
-                placeholder="Password (Min 8 characters)" 
-                value={tempUserData.password || ''} 
+            <input
+                type={passwordShown ? 'text' : 'password'}
+                placeholder="Password (Min 8 characters)"
+                value={tempUserData.password || ''}
                 onChange={(e) => setTempUserData(p => ({ ...p, password: e.target.value }))}
                 minLength="8"
                 required
@@ -701,22 +725,18 @@ const Login = ({ setTempUserData, tempUserData, setError, setCurrentPage, handle
                 {passwordShown ? '🙈' : '👁️'}
             </span>
         </div>
-        
+
         <div className="auth-options-divider">
             <span className="link-text" onClick={() => { setCurrentPage('forgot_password'); setError(''); }}>Forgot Password?</span>
         </div>
 
         <button type="submit" className="primary-button">Sign In</button>
-        
-        <div className="auth-options-or">OR</div>
-        
-        <button type="button" onClick={handleGoogleSignIn} className="secondary-button google-button">Sign In with Google</button>
     </form>
 );
 
-const RegisterStep1 = ({ setTempUserData, tempUserData, setCurrentPage, handleGoogleSignIn, handleEmailPasswordRegister }) => {
+const RegisterStep1 = ({ setTempUserData, tempUserData, setCurrentPage, handleEmailPasswordRegister }) => {
     const [passwordShown, setPasswordShown] = useState(false);
-    
+
     const handleLocalSubmit = (e) => {
         e.preventDefault();
         const name = e.target.name.value;
@@ -724,33 +744,33 @@ const RegisterStep1 = ({ setTempUserData, tempUserData, setCurrentPage, handleGo
         const password = e.target.password.value;
 
         setTempUserData(p => ({ ...p, name, email, password }));
-        handleEmailPasswordRegister(e); 
+        handleEmailPasswordRegister(e);
     };
 
     return (
         <form onSubmit={handleLocalSubmit} className="form-content">
-            <input 
-                type="text" 
-                placeholder="Full Name" 
+            <input
+                type="text"
+                placeholder="Full Name"
                 name="name"
-                value={tempUserData.name || ''} 
+                value={tempUserData.name || ''}
                 onChange={(e) => setTempUserData(p => ({ ...p, name: e.target.value }))}
                 required
             />
-            <input 
-                type="email" 
-                placeholder="Email (Organizational or Gmail)" 
+            <input
+                type="email"
+                placeholder="Email"
                 name="email"
-                value={tempUserData.email || ''} 
+                value={tempUserData.email || ''}
                 onChange={(e) => setTempUserData(p => ({ ...p, email: e.target.value }))}
                 required
             />
             <div className="password-input-group">
-                <input 
-                    type={passwordShown ? 'text' : 'password'} 
-                    placeholder="Password (Min 8 characters)" 
+                <input
+                    type={passwordShown ? 'text' : 'password'}
+                    placeholder="Password (Min 8 characters)"
                     name="password"
-                    value={tempUserData.password || ''} 
+                    value={tempUserData.password || ''}
                     onChange={(e) => setTempUserData(p => ({ ...p, password: e.target.value }))}
                     minLength="8"
                     required
@@ -759,12 +779,8 @@ const RegisterStep1 = ({ setTempUserData, tempUserData, setCurrentPage, handleGo
                     {passwordShown ? '🙈' : '👁️'}
                 </span>
             </div>
-            
-            <button type="submit" className="primary-button">Sign Up</button> 
-            
-            <div className="auth-options-or">OR</div>
-            
-            <button type="button" onClick={handleGoogleSignIn} className="secondary-button google-button">Sign Up with Google</button>
+
+            <button type="submit" className="primary-button">Sign Up</button>
         </form>
     );
 };
