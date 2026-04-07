@@ -82,7 +82,7 @@ const ROADMAP_CONTENT = {
         '£500K': [
             { text: 'Call Handlers', link: 'https://developcoaching.memberships.msgsndr.com/products/b472d77a-977d-493d-9a8a-005794ad92c7/categories/27922609-ae02-49bc-b392-d127b791d342/posts/9197b4ad-129c-4d2c-9781-8d4e91ace2d3' },
             { text: 'Telephone Sales Script', link: 'https://developcoaching.memberships.msgsndr.com/products/b472d77a-977d-493d-9a8a-005794ad92c7/categories/0926c445-bc1f-476c-8fc7-d27744f81934/posts/02732951-336d-4d3a-97c9-c5cb0261dc2b' },
-            { text: 'Accurate Pricing', link: '' },
+            { text: 'Accurate Pricing', link: 'https://developcoaching.memberships.msgsndr.com/products/b472d77a-977d-493d-9a8a-005794ad92c7/categories/ad682cdc-40cf-44af-8fae-8898c335ae1d/posts/0c3896f7-49f7-4bbe-85f9-c111275860e9' },
             { text: 'Quality Estimate Presentation', link: 'https://developcoaching.memberships.msgsndr.com/products/b472d77a-977d-493d-9a8a-005794ad92c7/categories/ad682cdc-40cf-44af-8fae-8898c335ae1d/posts/2b16bae2-33a6-45b2-959c-eae612d1e70a' },
         ],
         '£1M': [
