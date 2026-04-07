@@ -49,7 +49,7 @@ const ROADMAP_CONTENT = {
         ],
         '£3M': [
             { text: 'Cashflow Forecast', link: 'https://developcoaching.memberships.msgsndr.com/products/b472d77a-977d-493d-9a8a-005794ad92c7/categories/15ba264d-5733-4ff4-a8fe-9b5f829eee62/posts/2dcb0c45-c848-4585-bb4e-e68d66401b4c' },
-            { text: 'Pipeline', link: 'https://www.youtube.com/watch?v=wMmMAGOKRg8' },
+            { text: 'Pipeline', link: 'https://developcoaching.memberships.msgsndr.com/products/b472d77a-977d-493d-9a8a-005794ad92c7/categories/15279090-100b-49a4-a877-034d5e322e6c/posts/8483a111-d4e0-4371-8333-002f4f738d37' },
         ],
         '£5M': []
     },
@@ -69,7 +69,7 @@ const ROADMAP_CONTENT = {
         '£2M': [
             { text: 'Automated Social Posts', link: 'https://developcoaching.memberships.msgsndr.com/products/b472d77a-977d-493d-9a8a-005794ad92c7/categories/15279090-100b-49a4-a877-034d5e322e6c/posts/248c7728-0af8-466e-a6b7-31c4adc80018' },
             { text: 'Outbound Marketing', link: 'https://developcoaching.memberships.msgsndr.com/products/b472d77a-977d-493d-9a8a-005794ad92c7/categories/15279090-100b-49a4-a877-034d5e322e6c/posts/6b0a5030-66df-4265-9d7c-892a46393872' },
-            { text: 'LinkedIn Connection & Campaigns', link: 'https://developcoaching.memberships.msgsndr.com/products/b472d77a-977d-493d-9a8a-005794ad92c7/categories/15279090-100b-49a4-a877-034d5e322e6c/posts/df2a4e5c-9a96-418c-b524-d98f3db6e1ba' },
+            { text: 'LinkedIn Connection & Campaigns', link: 'https://developcoaching.memberships.msgsndr.com/products/b472d77a-977d-493d-9a8a-005794ad92c7/categories/15279090-100b-49a4-a877-034d5e322e6c/posts/c83419ca-bd34-4c0f-862b-79555d52ba55' },
         ],
         '£3M': [
             { text: 'Page 1 Google key search terms', link: 'https://developcoaching.memberships.msgsndr.com/products/b472d77a-977d-493d-9a8a-005794ad92c7/categories/15279090-100b-49a4-a877-034d5e322e6c/posts/d354f2b0-9a9c-46dd-8400-28a1a10b8d49' },
@@ -116,7 +116,7 @@ const ROADMAP_CONTENT = {
         ],
         '£2M': [
             { text: 'Contractor/Project Manager', link: 'https://developcoaching.memberships.msgsndr.com/products/b472d77a-977d-493d-9a8a-005794ad92c7/categories/27922609-ae02-49bc-b392-d127b791d342/posts/da9e9430-1569-49c2-a00a-3c2c45a5c3ad' },
-            { text: 'Weekly PM Review', link: 'https://developcoaching.memberships.msgsndr.com/products/b472d77a-977d-493d-9a8a-005794ad92c7/categories/27922609-ae02-49bc-b392-d127b791d342/posts/e3e2f7c3-8541-426f-ae74-7bd5d3ea205b' },
+            { text: 'Weekly PM Review', link: 'https://developcoaching.memberships.msgsndr.com/products/b472d77a-977d-493d-9a8a-005794ad92c7/categories/27922609-ae02-49bc-b392-d127b791d342/posts/da9e9430-1569-49c2-a00a-3c2c45a5c3ad' },
         ],
         '£3M': [
             { text: 'Project Sign Off Snagging/Quality Control', link: 'https://developcoaching.memberships.msgsndr.com/products/b472d77a-977d-493d-9a8a-005794ad92c7/categories/0926c445-bc1f-476c-8fc7-d27744f81934/posts/7efe78be-bb11-48d5-be0e-ddc4bb6bcc6b' },
@@ -175,6 +175,7 @@ const getMaxTasksInSlab = (slab) => {
 const Roadmap = ({ userId, handleSignOut }) => {
     const [checkedItems, setCheckedItems] = useState({});
     const [isDataLoading, setIsDataLoading] = useState(true);
+    const [noVideoPopout, setNoVideoPopout] = useState(false);
     
     // Firestore Path for Progress: artifacts/{appId}/users/{userId}/roadmap_progress/checks
     const roadmapProgressRef = doc(db, 'artifacts', appId, 'users', userId, 'roadmap_progress', 'checks');
@@ -355,7 +356,13 @@ const Roadmap = ({ userId, handleSignOut }) => {
                                                                     {item.text}
                                                                 </a>
                                                             ) : (
-                                                                <span className="task-text">{item.text}</span>
+                                                                <span
+                                                                    className="task-text task-no-video"
+                                                                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); setNoVideoPopout(true); }}
+                                                                >
+                                                                    {item.text}
+                                                                    <span className="no-video-badge">No video</span>
+                                                                </span>
                                                             )}
                                                         </label>
                                                     </li>
@@ -375,6 +382,16 @@ const Roadmap = ({ userId, handleSignOut }) => {
                         );
                     })}
                 </div>
+
+                {/* No Video Popout */}
+                {noVideoPopout && (
+                    <div className="no-video-overlay" onClick={() => setNoVideoPopout(false)}>
+                        <div className="no-video-modal" onClick={(e) => e.stopPropagation()}>
+                            <p>No training video available for this content yet.</p>
+                            <button className="no-video-close-btn" onClick={() => setNoVideoPopout(false)}>Close</button>
+                        </div>
+                    </div>
+                )}
 
                 {/* Vertical Scale */}
                 <div className="roadmap-scale">
