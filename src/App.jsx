@@ -1,12 +1,12 @@
 
 import React from 'react';
-import AuthApp from './AuthApp.jsx';
+import AuthRoadmap from './AuthRoadmap.jsx';
 
 
 function App() {
   return (
     <div className="App">
-      <AuthApp />
+      <AuthRoadmap />
     </div>
   );
 }
